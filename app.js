@@ -21,11 +21,15 @@ const PORT = process.env.PORT || 3000;
 app.post('/incoming', (req, res) => {
   try {
     const twiml = new VoiceResponse();
-    // connect and stream BOTH directions
+
+    // Start streaming both inbound & outbound audio
     twiml.connect().stream({
       url: `wss://${process.env.SERVER}/connection`,
       track: 'both_tracks'
     });
+
+    // Keep the call open for up to 10 minutes
+    twiml.pause({ length: 600 });
 
     res.type('text/xml').send(twiml.toString());
   } catch (err) {
@@ -55,7 +59,7 @@ app.ws('/connection', (ws) => {
         streamService.setStreamSid(streamSid);
         gptService.setCallSid(callSid);
 
-        // optionally record
+        // Optionally record the call
         recordingService(ttsService, callSid).then(() => {
           console.log(`📡 Media Stream started: ${streamSid}`.underline.red);
           ttsService.generate({
@@ -110,5 +114,5 @@ app.ws('/connection', (ws) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server listening on ${PORT}`);
+  console.log(`🚀 Server listening on port ${PORT}`.green);
 });
