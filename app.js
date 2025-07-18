@@ -12,13 +12,19 @@ const VoiceResponse = require('twilio').twiml.VoiceResponse;
 
 const app = express();
 ExpressWs(app);
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false }));  // parse form posts
 
 const PORT = process.env.PORT || 3000;
 
 app.post('/incoming', (req, res) => {
   try {
     const twiml = new VoiceResponse();
+
+    // Speak a greeting so we know audio is working
+    twiml.say(
+      { voice: 'alice', language: 'en-US' },
+      'Hello! This is a test—did you hear this greeting?'
+    );
 
     // Bridge the call and stream both inbound & outbound audio
     const connect = twiml.connect();
