@@ -12,8 +12,6 @@ const VoiceResponse = require('twilio').twiml.VoiceResponse;
 
 const app = express();
 ExpressWs(app);
-
-// parse application/x-www-form-urlencoded so req.body is populated
 app.use(express.urlencoded({ extended: false }));
 
 const PORT = process.env.PORT || 3000;
@@ -23,7 +21,8 @@ app.post('/incoming', (req, res) => {
     const twiml = new VoiceResponse();
 
     // Start streaming both inbound & outbound audio
-    twiml.connect().stream({
+    const start = twiml.start();
+    start.stream({
       url: `wss://${process.env.SERVER}/connection`,
       track: 'both_tracks'
     });
@@ -59,7 +58,6 @@ app.ws('/connection', (ws) => {
         streamService.setStreamSid(streamSid);
         gptService.setCallSid(callSid);
 
-        // Optionally record the call
         recordingService(ttsService, callSid).then(() => {
           console.log(`📡 Media Stream started: ${streamSid}`.underline.red);
           ttsService.generate({
