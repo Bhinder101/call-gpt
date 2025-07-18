@@ -20,9 +20,9 @@ app.post('/incoming', (req, res) => {
   try {
     const twiml = new VoiceResponse();
 
-    // Start streaming both inbound & outbound audio
-    const start = twiml.start();
-    start.stream({
+    // Bridge the call and stream both inbound & outbound audio
+    const connect = twiml.connect();
+    connect.stream({
       url: `wss://${process.env.SERVER}/connection`,
       track: 'both_tracks'
     });
